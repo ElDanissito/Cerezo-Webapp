@@ -1,10 +1,12 @@
-Commit Guidelines
+# Commit Guidelines
 
-En este repo las confirmaciones siguen Conventional Commits y siempre deben referenciar la HU y la TASK correspondientes.
+En este repo las confirmaciones siguen **Conventional Commits** y **siempre** deben referenciar la **HU** y la **TASK** correspondientes.
 
-🧭 TL;DR (rápido)
+---
 
-Formato mínimo válido:
+## 🧭 TL;DR
+
+**Formato minimo valido:**
 
 <type>(scope?): <subject>
 
@@ -12,154 +14,206 @@ Formato mínimo válido:
 Refs: HU-<id> TASK-<id>
 
 
-Ejemplo válido:
 
+**Ejemplo valido:**
 chore(tooling): set up commitlint and husky
 
-- add commitlint.config.cjs
-- add commit-msg hook
-- add GitHub Action
+add commitlint.config.cjs
+
+add commit-msg hook
+
+add GitHub Action
 
 Refs: HU-101 TASK-456
 
-✅ Reglas obligatorias
 
-Idioma: commits en inglés.
+---
 
-Formato: Conventional Commits.
+## ✅ Reglas obligatorias
 
-Referencias: cada commit debe incluir HU-<id> y TASK-<id> (en header, body o footer).
+- **Idioma:** commits en ingles.  
+- **Formato:** Conventional Commits.  
+- **Referencias:** cada commit debe incluir `HU-<id>` y `TASK-<id>` (en header, body o footer).  
+- **Header <= 100 chars.**  
+- **Subject en imperative mood** (p. ej., *add, fix, remove*; no *added, fixes*).  
+- **ASCII-only en commit messages** (sin acentos/ñ/emoji) para evitar problemas en tooling/CI.
 
-Header ≤ 100 chars.
+---
 
-Subject en imperative mood (ej. add, fix, remove; no added, fixes).
+## Tipos permitidos
 
-ASCII-only (sin tildes/ñ/emoji) para evitar problemas en tooling/CI.
+| type    | uso tipico                                   |
+|---------|-----------------------------------------------|
+| feat    | nueva funcionalidad                           |
+| fix     | correccion de bug                             |
+| hotfix  | fix urgente en produccion                     |
+| refactor| cambio interno sin alterar comportamiento     |
+| chore   | tareas varias (tooling, deps, housekeeping)   |
+| docs    | documentacion                                 |
+| style   | formato/estilo (sin cambiar logica)           |
+| test    | tests                                         |
+| perf    | performance                                   |
+| build   | build system, dependencias                    |
+| ci      | pipelines/acciones                            |
+| revert  | revertir un commit                            |
 
-Tipos permitidos
-type	uso típico
-feat	nueva funcionalidad
-fix	corrección de bug
-hotfix	fix urgente en producción
-refactor	cambio interno sin alterar comportamiento
-chore	tareas varias (tooling, deps, housekeeping)
-docs	documentación
-style	formato/estilo (sin cambiar lógica)
-test	tests
-perf	performance
-build	build system, dependencias
-ci	pipelines/acciones
-revert	revertir un commit
+> `scope` (opcional): `auth`, `api`, `ui`, `deps`, `tooling`, `ci`, etc.
 
-scope (opcional): auth, api, ui, deps, tooling, ci, etc.
+---
 
-🧪 Ejemplos válidos
+## 🧪 Ejemplos validos
 
-feat(auth): enable 2FA for login (HU-231 TASK-889)
+feat(auth): enable 2FA for login
 
-fix(api): handle 401 on token refresh (HU-912 TASK-1201)
+Refs: HU-231 TASK-889
 
-refactor(ui): simplify sidebar state (HU-142 TASK-320)
+Copiar código
+fix(api): handle 401 on token refresh
 
-chore(tooling): set up commitlint + husky (HU-100 TASK-200)
+Refs: HU-912 TASK-1201
 
-docs(readme): add commit guidelines (HU-100 TASK-201)
-
-Multi-línea:
-
-refactor(ui): split header into smaller components
-
-- extract search bar
-- move cart badge logic into hook
-- add unit tests
+Copiar código
+refactor(ui): simplify sidebar state
 
 Refs: HU-142 TASK-320
 
-🚫 Ejemplos inválidos (y por qué)
+Copiar código
+chore(tooling): set up commitlint + husky
 
-fix: arreglar bug en login ← no está en inglés + sin HU/TASK
+Refs: HU-100 TASK-200
 
-feat: add feature ← sin HU/TASK
+Copiar código
+docs(readme): add commit guidelines
 
-docs: update ← sin HU/TASK y subject poco descriptivo
+Refs: HU-100 TASK-201
 
-chore: bump deps (HU-10) ← falta TASK-<id>
 
-feat(api): add 🔥 ← no ASCII
 
-🌿 Estrategia de ramas
+**Multi-linea:**
+refactor(ui): split header into smaller components
 
-Ramas de desarrollo por persona (p. ej.):
+extract search bar
+
+move cart badge logic into hook
+
+add unit tests
+
+Refs: HU-142 TASK-320
+
+
+
+
+---
+
+## 🚫 Ejemplos invalidos (y por que)
+
+- `fix: arreglar bug en login` ← no esta en ingles + sin HU/TASK  
+- `feat: add feature` ← sin HU/TASK  
+- `docs: update` ← sin HU/TASK y subject poco descriptivo  
+- `chore: bump deps (HU-10)` ← falta `TASK-<id>`  
+- `feat(api): add 🔥` ← no ASCII  
+
+---
+
+## 🌿 Estrategia de ramas
+
+Ramas de desarrollo por persona (ejemplos):
 
 juan/hu-123-profile-edit
-
 ana/hu-456-payments-refactor
 
-Ramas protegidas: develop, main.
+markdown
+Copiar código
 
-Flujo típico:
+Ramas protegidas: `develop`, `main`.
 
-Crea tu rama desde develop.
+**Flujo tipico:**
 
-Commits siguiendo estas reglas.
+1. Crea tu rama desde `develop`.  
+2. Commits siguiendo estas reglas.  
+3. Pull Request → `develop`.  
+4. `develop` → `main` segun releases.
 
-PR → develop.
+---
 
-develop → main según releases.
+## 🛠️ Hooks locales (Husky + Commitlint)
 
-🛠️ Hooks locales (Husky + Commitlint)
+Este repo bloquea mensajes invalidos en **commit-msg**.
 
-Ya está configurado en este repo para bloquear mensajes inválidos en commit-msg.
-
-Verifica que el hook está activo:
+**Verificar que el hook esta activo:**
 
 git config --get core.hooksPath
 # Debe imprimir: .husky
+Instalacion / reinstalacion rapida:
 
-
-Si necesitas reinstalar:
 
 npm i -D @commitlint/cli @commitlint/config-conventional husky
-npm run prepare           # crea .husky si no existe
-# crea/update .husky/commit-msg con:
-# npx --yes commitlint --edit "$1"
+npm run prepare
+
+# .husky/commit-msg (contenido):
+# npx --no-install commitlint --edit "$1"
 
 chmod +x .husky/commit-msg
+En Husky v9 no uses husky.sh ni shebang en el hook; una sola linea es suficiente.
 
 🤖 CI (GitHub Actions)
-
-Se valida también en push y pull_request con wagoid/commitlint-github-action usando commitlint.config.cjs.
-Ramas protegidas (develop, main) no aceptarán commits/PRs con mensajes inválidos.
+Se valida tambien en push y pull_request con wagoid/commitlint-github-action usando commitlint.config.cjs.
+Ramas protegidas (develop, main) no aceptan commits/PRs con mensajes invalidos.
 
 🧰 Troubleshooting
-
-“Hooks no corren” → revisa git config --get core.hooksPath → .husky
+“Hooks no corren” → git config --get core.hooksPath → debe ser .husky
 
 Permisos → chmod +x .husky/commit-msg
 
 Editor abre para escribir mensaje → respeta el formato; incluye Refs: HU-xxx TASK-yyy
 
-GitKraken / GUI → los hooks igual se ejecutan si core.hooksPath apunta a .husky
+GitKraken/GUI → los hooks corren si hooksPath apunta a .husky (no usar “Skip Git hooks”)
 
 No bypass → no usar --no-verify
 
 📝 Plantilla opcional para commits
+Guarda como .gitmessage.txt y activala con:
 
-Guárdala como .gitmessage.txt y actívala con
+bash
+Copiar código
 git config commit.template .gitmessage.txt
+Contenido:
 
+php-template
+Copiar código
 <type>(scope?): <subject>
 
-<body - what/why, not how, wrapped ~72 cols>
+<body - what/why, not how, wrap at ~72 cols>
 
 Refs: HU-<id> TASK-<id>
-
 ✅ Checklist para PR
-
- Mensajes de commit válidos (inglés + HU/TASK)
+ Mensajes de commit validos (ingles + HU/TASK)
 
  CI en verde (incluye commitlint)
 
  Scope y subject claros
 
  Cambios documentados si aplica
+
+
+### Por que antes “no cogia” el formato
+- Faltaban **titulos** con `#`, **lineas en blanco** entre parrafos y listas, y **bloques de codigo** con ``` (triple backtick).  
+- En tablas, usa **tuberias** `|` y una linea de separadores `---`.  
+- Evita mezclar listas y codigo sin una linea en blanco encima: GitHub colapsa el render.
+
+Si quieres, te lo empaqueto en un archivo listo (`README_COMMITS.md`) y te paso el commit message que pasa tus reglas.
+::contentReference[oaicite:0]{index=0}
+
+#Hacer esto para Iniciar
+
+# 1 Instalar deps
+npm i
+
+# 2 Asegurar que Git use .husky como hooksPath (una sola vez por repo clonado)
+git config --get core.hooksPath || git config core.hooksPath .husky
+
+# 3 (Opcional) Verificar que el hook está marcado ejecutable en el repo
+git ls-files -s .husky/commit-msg   # debe mostrar 100755
+
+# 4 Test rápido: debe FALLAR porque no pone HU/TASK
+git commit --allow-empty -m "feat: test" -m "sin HU ni TASK"
