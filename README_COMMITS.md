@@ -167,53 +167,20 @@ Permisos → chmod +x .husky/commit-msg
 
 Editor abre para escribir mensaje → respeta el formato; incluye Refs: HU-xxx TASK-yyy
 
-GitKraken/GUI → los hooks corren si hooksPath apunta a .husky (no usar “Skip Git hooks”)
 
-No bypass → no usar --no-verify
+# Hacer esto para Iniciar
 
-📝 Plantilla opcional para commits
-Guarda como .gitmessage.txt y activala con:
-
-bash
-Copiar código
-git config commit.template .gitmessage.txt
-Contenido:
-
-php-template
-Copiar código
-<type>(scope?): <subject>
-
-<body - what/why, not how, wrap at ~72 cols>
-
-Refs: HU-<id> TASK-<id>
-✅ Checklist para PR
- Mensajes de commit validos (ingles + HU/TASK)
-
- CI en verde (incluye commitlint)
-
- Scope y subject claros
-
- Cambios documentados si aplica
-
-
-### Por que antes “no cogia” el formato
-- Faltaban **titulos** con `#`, **lineas en blanco** entre parrafos y listas, y **bloques de codigo** con ``` (triple backtick).  
-- En tablas, usa **tuberias** `|` y una linea de separadores `---`.  
-- Evita mezclar listas y codigo sin una linea en blanco encima: GitHub colapsa el render.
-
-Si quieres, te lo empaqueto en un archivo listo (`README_COMMITS.md`) y te paso el commit message que pasa tus reglas.
-::contentReference[oaicite:0]{index=0}
-
-#Hacer esto para Iniciar
-
-# 1 Instalar deps
+## 1 Instalar deps
 npm i
 
-# 2 Asegurar que Git use .husky como hooksPath (una sola vez por repo clonado)
+## 2 Asegurar que Git use .husky como hooksPath (una sola vez por repo clonado)
 git config --get core.hooksPath || git config core.hooksPath .husky
 
-# 3 (Opcional) Verificar que el hook está marcado ejecutable en el repo
+## 3 (Opcional) Verificar que el hook está marcado ejecutable en el repo
 git ls-files -s .husky/commit-msg   # debe mostrar 100755
 
-# 4 Test rápido: debe FALLAR porque no pone HU/TASK
+## 4 Test rápido: debe FALLAR porque no pone HU/TASK
 git commit --allow-empty -m "feat: test" -m "sin HU ni TASK"
+
+## Creador de commits
+https://chatgpt.com/g/g-68f5276d16e88191870d3b7fc21dbb2e-asistente-de-commits
