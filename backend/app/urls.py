@@ -15,8 +15,29 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from app.users.views import (
+    google_signin,
+    google_signup,
+    google_callback,
+    verify_google_token,
+    login_con_credenciales,
+)
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # Login con credenciales (JSON store + bcrypt)
+    path('api/login', login_con_credenciales, name='login_credenciales'),
+    # Autenticación con Google OAuth
+    path('api/auth/google/signin/', google_signin, name='google_signin'),
+    path('api/auth/google/signup/', google_signup, name='google_signup'),
+    path('api/auth/google/callback/', google_callback, name='google_callback'),
+    path('api/auth/google/verify/', verify_google_token, name='verify_google_token'),
+    # JWT tokens
+    path('api/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

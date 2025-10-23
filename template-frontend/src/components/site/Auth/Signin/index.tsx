@@ -1,8 +1,140 @@
+"use client";
+
 import Breadcrumb from "@/components/site/Common/Breadcrumb";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 
 const Signin = () => {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [touched, setTouched] = useState({
+    email: false,
+    password: false,
+  });
+  const [fieldErrors, setFieldErrors] = useState({
+    email: "",
+    password: "",
+  });
+
+  const validateField = (name: string, value: string) => {
+    let errorMsg = "";
+    
+    if (name === "email") {
+      if (!value.trim()) {
+        errorMsg = "El correo electronico es requerido";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        errorMsg = "Ingresa un correo electronico valido";
+      }
+    }
+    
+    if (name === "password") {
+      if (!value.trim()) {
+        errorMsg = "La contrasena es requerida";
+      } else if (value.length < 6) {
+        errorMsg = "La contrasena debe tener al menos 6 caracteres";
+      }
+    }
+    
+    return errorMsg;
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    if (touched[name as keyof typeof touched]) {
+      const error = validateField(name, value);
+      setFieldErrors((prev) => ({
+        ...prev,
+        [name]: error,
+      }));
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setTouched((prev) => ({
+      ...prev,
+      [name]: true,
+    }));
+
+    const error = validateField(name, value);
+    setFieldErrors((prev) => ({
+      ...prev,
+      [name]: error,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+
+    const emailError = validateField("email", formData.email);
+    const passwordError = validateField("password", formData.password);
+
+    setFieldErrors({
+      email: emailError,
+      password: passwordError,
+    });
+
+    setTouched({
+      email: true,
+      password: true,
+    });
+
+    if (emailError || passwordError) {
+      setError("Por favor corrige los errores antes de continuar");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+      const resp = await fetch(`${backendUrl}/api/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          usuario: formData.email,
+          contraseña: formData.password,
+        }),
+      });
+
+      if (!resp.ok) {
+        const data = await resp.json().catch(() => ({}));
+        const msg = (data as any)?.error || "Credenciales invalidas";
+        throw new Error(msg);
+      }
+
+      window.location.href = "/dashboard";
+    } catch (err: any) {
+      setError(err.message || "Error al iniciar sesion. Intenta nuevamente.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignin = async () => {
+    setIsGoogleLoading(true);
+    setError("");
+    
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+      window.location.href = `${backendUrl}/api/auth/google/signin`;
+    } catch {
+      setError("Error al iniciar sesion con Google. Intenta nuevamente.");
+      setIsGoogleLoading(false);
+    }
+  };
   return (
     <>
       <Breadcrumb title={"Signin"} pages={["Signin"]} />
