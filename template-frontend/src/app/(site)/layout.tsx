@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 // import './css/style.css';
 
 import Header from '@/components/site/Header';
+import HeaderSpacer from '@/components/site/HeaderSpacer';
 import Footer from '@/components/site/Footer';
 
 import { ModalProvider } from './context/QuickViewModalContext';
@@ -38,7 +39,17 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
           <ModalProvider>
             <PreviewSliderProvider>
               <Header />
-              {children}
+              <HeaderSpacer />
+              {/* Calculate header height and set a CSS variable so main can offset dynamically */}
+              <div
+                id="site-main-wrapper"
+                style={{
+                  // default fallback in case JS doesn't run yet
+                  paddingTop: '6rem',
+                }}
+              >
+                {children}
+              </div>
 
               <QuickViewModal />
               <CartSidebarModal />
