@@ -158,7 +158,7 @@ const Header = () => {
 
             <div className="flex w-full lg:w-auto justify-between items-center gap-5">
               <div className="flex items-center gap-5">
-                <Link href="/dashboard/signin" className="flex items-center gap-2.5">
+                <Link href="/signin" className="flex items-center gap-2.5">
                   <svg
                     width="24"
                     height="24"
