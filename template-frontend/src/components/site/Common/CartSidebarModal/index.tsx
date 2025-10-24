@@ -5,8 +5,8 @@ import { useCartModalContext } from "@/app/(site)/context/CartSidebarModalContex
 import {
   removeItemFromCart,
   selectTotalPrice,
-} from "@/features/site/redux/features/cart-slice";
-import { useAppSelector } from "@/features/site/redux/store";
+} from "@/features/admin/site/redux/features/cart-slice";
+import { useAppSelector } from "@/features/admin/site/redux/store";
 import { useSelector } from "react-redux";
 import SingleItem from "./SingleItem";
 import Link from "next/link";

@@ -8,7 +8,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 
 import { usePreviewSlider } from "@/app/(site)/context/PreviewSliderContext";
-import { useAppSelector } from "@/features/site/redux/store";
+import { useAppSelector } from "@/features/admin/site/redux/store";
 
 const PreviewSliderModal = () => {
   const { closePreviewModal, isModalPreviewOpen } = usePreviewSlider();

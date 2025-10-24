@@ -2,13 +2,13 @@
 import React, { useEffect, useState } from "react";
 
 import { useModalContext } from "@/app/(site)/context/QuickViewModalContext";
-import { AppDispatch, useAppSelector } from "@/features/site/redux/store";
-import { addItemToCart } from "@/features/site//redux/features/cart-slice";
+import { AppDispatch, useAppSelector } from "@/features/admin/site/redux/store";
+import { addItemToCart } from "@/features/admin/site/redux/features/cart-slice";
 import { useDispatch } from "react-redux";
 import Image from "next/image";
 import { usePreviewSlider } from "@/app/(site)/context/PreviewSliderContext";
-import { resetQuickView } from "@/features/site/redux/features/quickView-slice";
-import { updateproductDetails } from "@/features/site/redux/features/product-details";
+import { resetQuickView } from "@/features/admin/site/redux/features/quickView-slice";
+import { updateproductDetails } from "@/features/admin/site/redux/features/product-details";
 
 const QuickViewModal = () => {
   const { isModalOpen, closeModal } = useModalContext();

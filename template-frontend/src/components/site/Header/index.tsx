@@ -4,9 +4,9 @@ import Link from "next/link";
 import CustomSelect from "./CustomSelect";
 import { menuData } from "./menuData";
 import Dropdown from "./Dropdown";
-import { useAppSelector } from "@/features/site/redux/store";
+import { useAppSelector } from "@/features/admin/site/redux/store";
 import { useSelector } from "react-redux";
-import { selectTotalPrice } from "@/features/site/redux/features/cart-slice";
+import { selectTotalPrice } from "@/features/admin/site/redux/features/cart-slice";
 import { useCartModalContext } from "@/app/(site)/context/CartSidebarModalContext";
 import Image from "next/image";
 

@@ -1,5 +1,5 @@
-import { selectTotalPrice } from "@/features/site/redux/features/cart-slice";
-import { useAppSelector } from "@/features/site/redux/store";
+import { selectTotalPrice } from "@/features/admin/site/redux/features/cart-slice";
+import { useAppSelector } from "@/features/admin/site/redux/store";
 import React from "react";
 import { useSelector } from "react-redux";
 

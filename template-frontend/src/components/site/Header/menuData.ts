@@ -1,4 +1,4 @@
-import { Menu } from "@/features/site/types/Menu";
+import { Menu } from "@/features/admin/site/types/Menu";
 
 export const menuData: Menu[] = [
   {

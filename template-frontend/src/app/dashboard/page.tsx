@@ -1,37 +1,42 @@
-export default function Dashboard() {
-  return (
-    <div className="p-6">
-      <header className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-1">Inicio de sesión exitoso</p>
-      </header>
+import type { Metadata } from "next";
+import { EcommerceMetrics } from "@/components/admin/tramites/EcommerceMetrics";
+import React from "react";
+import MonthlyTarget from "@/components/admin/tramites/MonthlyTarget";
+import MonthlySalesChart from "@/components/admin/tramites/MonthlySalesChart";
+import StatisticsChart from "@/components/admin/tramites/StatisticsChart";
+import RecentOrders from "@/components/admin/tramites/RecentOrders";
+import DemographicCard from "@/components/admin/tramites/DemographicCard";
 
-      <section className="bg-white border rounded-xl shadow-sm p-6">
-        <div className="flex items-start gap-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="h-6 w-6 text-green-600"
-            >
-              <path
-                fillRule="evenodd"
-                d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.527L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900">
-              ¡Has iniciado sesión correctamente!
-            </h2>
-            <p className="text-sm text-gray-600 mt-1">
-              Este es tu dashboard. Desde aquí podrás acceder a todas las secciones de la aplicación.
-            </p>
-          </div>
-        </div>
-      </section>
+export const metadata: Metadata = {
+  title:
+    "Next.js E-commerce Dashboard | TailAdmin - Next.js Dashboard Template",
+  description: "This is Next.js Home for TailAdmin Dashboard Template",
+};
+
+export default function Ecommerce() {
+  return (
+    <div className="grid grid-cols-12 gap-4 md:gap-6">
+      <div className="col-span-12 space-y-6 xl:col-span-7">
+        <EcommerceMetrics />
+
+        <MonthlySalesChart />
+      </div>
+
+      <div className="col-span-12 xl:col-span-5">
+        <MonthlyTarget />
+      </div>
+
+      <div className="col-span-12">
+        <StatisticsChart />
+      </div>
+
+      <div className="col-span-12 xl:col-span-5">
+        <DemographicCard />
+      </div>
+
+      <div className="col-span-12 xl:col-span-7">
+        <RecentOrders />
+      </div>
     </div>
   );
 }

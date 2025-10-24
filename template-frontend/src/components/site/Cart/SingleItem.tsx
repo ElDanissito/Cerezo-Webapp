@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { AppDispatch } from "@/features/site/redux/store";
+import { AppDispatch } from "@/features/admin/site/redux/store";
 import { useDispatch } from "react-redux";
 import {
   removeItemFromCart,
   updateCartItemQuantity,
-} from "@/features/site/redux/features/cart-slice";
+} from "@/features/admin/site/redux/features/cart-slice";
 
 import Image from "next/image";
 

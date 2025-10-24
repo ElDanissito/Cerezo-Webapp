@@ -11,7 +11,7 @@ import Footer from '@/components/site/Footer';
 
 import { ModalProvider } from './context/QuickViewModalContext';
 import { CartModalProvider } from './context/CartSidebarModalContext';
-import { ReduxProvider } from '@/features/site/redux/provider';
+import { ReduxProvider } from '@/features/admin/site/redux/provider';
 import QuickViewModal from '@/components/site/Common/QuickViewModal';
 import CartSidebarModal from '@/components/site/Common/CartSidebarModal';
 import { PreviewSliderProvider } from './context/PreviewSliderContext';

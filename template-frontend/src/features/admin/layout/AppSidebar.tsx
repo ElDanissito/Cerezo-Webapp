@@ -36,7 +36,10 @@ const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    subItems: [{ name: "Ecommerce", path: "/", pro: false }],
+    subItems: [{ name: "Ecommerce", path: "/", pro: false },
+               { name: "Stats Trámites", path: "/resumen-metricas", pro: false }
+                
+    ],
   },
   {
     icon: <CalenderIcon />,
@@ -320,14 +323,14 @@ const isActive = useCallback((path: string) => pathname === r(path), [pathname])
             <>
               <Image
                 className="dark:hidden"
-                src="/images/logo/logo.svg"
+                src="/images2/logo/logo.svg"
                 alt="Logo"
                 width={150}
                 height={40}
               />
               <Image
                 className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
+                src="/images2/logo/logo-dark.svg"
                 alt="Logo"
                 width={150}
                 height={40}
@@ -335,7 +338,7 @@ const isActive = useCallback((path: string) => pathname === r(path), [pathname])
             </>
           ) : (
             <Image
-              src="/images/logo/logo-icon.svg"
+              src="/images2/logo/logo-icon.svg"
               alt="Logo"
               width={32}
               height={32}

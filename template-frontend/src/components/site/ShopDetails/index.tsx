@@ -5,7 +5,7 @@ import Image from "next/image";
 import Newsletter from "../Common/Newsletter";
 import RecentlyViewdItems from "./RecentlyViewd";
 import { usePreviewSlider } from "@/app/(site)/context/PreviewSliderContext";
-import { useAppSelector } from "@/features/site/redux/store";
+import { useAppSelector } from "@/features/admin/site/redux/store";
 
 const ShopDetails = () => {
   const [activeColor, setActiveColor] = useState("blue");
