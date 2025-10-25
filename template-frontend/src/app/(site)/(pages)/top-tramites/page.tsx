@@ -6,7 +6,7 @@ export const metadata = {
   description: "Acceso rápido a los trámites más consultados.",
 };
 
-const Page = async () => {
+export default async function Page() {
   return (
     <main>
       {/* The actual UI and data fetching is handled inside the component */}
@@ -14,6 +14,4 @@ const Page = async () => {
       <TramitesPage />
     </main>
   );
-};
-
-export default Page;
+}
