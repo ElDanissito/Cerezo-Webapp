@@ -1,0 +1,18 @@
+{
+  "name": "cerezo-webapp",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "prepare": "husky",
+    "commitlint": "commitlint --from=HEAD~1",
+    "lint": "echo \"(opcional) corre lint raíz o orquesta lint en workspaces\""
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "husky": "^9.1.7"
+  }
+}
