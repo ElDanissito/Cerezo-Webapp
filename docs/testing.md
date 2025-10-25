@@ -1,1 +1,0 @@
-### Registrar cómo se realizan las pruebas y validaciones del proyecto.

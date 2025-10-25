@@ -20,7 +20,8 @@ from app.users.views import (
     google_signin,
     google_signup,
     google_callback,
-    verify_google_token
+    verify_google_token,
+    admin_only_view
 )
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -37,5 +38,9 @@ urlpatterns = [
     # JWT tokens
     path('api/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # Endpoint de ejemplo protegido solo para administradores
+    path('api/auth/admin-only/', admin_only_view, name='admin_only'),
+
     path('chatbot/', include('app.chatbot.urls')),
+    path('tramites/', include('app.tramites.urls')),
 ]

@@ -10,6 +10,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import redirect
 from urllib.parse import urlencode
 import requests
+from rest_framework.permissions import IsAuthenticated
+from .permissions import IsAdmin
 
 
 def get_tokens_for_user(user):
@@ -212,3 +214,9 @@ def verify_google_token(request):
 			{'error': f'Error al verificar el token: {str(e)}'},
 			status=status.HTTP_400_BAD_REQUEST
 		)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, IsAdmin])
+def admin_only_view(request):
+    return Response({'detail': 'Acceso concedido: rol administrado verificado.'}, status=status.HTTP_200_OK)
