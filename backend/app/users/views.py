@@ -16,6 +16,44 @@ from datetime import datetime, timedelta, timezone
 from .json_store import find_user
 
 
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def logout_view(request):
+	"""Invalidate server-side session and remove session cookie.
+
+	Route: POST /api/logout
+	"""
+	# If we stored a Google refresh token in the server-side session during OAuth,
+	# revoke it at Google before flushing the session so the token becomes invalid.
+	google_refresh = request.session.get('google_refresh_token')
+	if google_refresh:
+		try:
+			# Google revocation endpoint expects token in form-encoded body
+			rev = requests.post(
+				'https://oauth2.googleapis.com/revoke',
+				data={'token': google_refresh},
+				headers={'content-type': 'application/x-www-form-urlencoded'},
+				timeout=5,
+			)
+			# best-effort: ignore non-200 responses, but log if needed
+			if rev.status_code != 200:
+				print(f"Google token revocation returned {rev.status_code}: {rev.text}")
+		except Exception as e:
+			print(f"Failed to revoke Google refresh token: {e}")
+
+	# Flush any server-side session data (if used)
+	try:
+		request.session.flush()
+	except Exception:
+		# ignore if sessions not configured for this request
+		pass
+
+	resp = Response({'detail': 'logged_out'}, status=status.HTTP_200_OK)
+	# Remove the session cookie from client
+	resp.delete_cookie('session', path='/')
+	return resp
+
+
 def get_tokens_for_user(user):
 	"""Genera tokens JWT para un usuario"""
 	refresh = RefreshToken.for_user(user)
@@ -91,13 +129,18 @@ def google_callback(request):
 			'code': code,
 			'client_id': settings.GOOGLE_OAUTH_CLIENT_ID,
 			'client_secret': settings.GOOGLE_OAUTH_CLIENT_SECRET,
-			'redirect_uri': settings.GOOGLE_OAUTH_REDIRECT_URI,
+				'redirect_uri': settings.GOOGLE_OAUTH_REDIRECT_URI,
 			'grant_type': 'authorization_code',
 		}
         
 		token_response = requests.post(token_url, data=token_data)
 		token_response.raise_for_status()
 		tokens = token_response.json()
+
+			# Store the refresh token in the server-side session so we can revoke it on logout
+		refresh_token = tokens.get('refresh_token')
+		if refresh_token:
+			request.session['google_refresh_token'] = refresh_token
         
 		# Verificar el ID token
 		id_info = id_token.verify_oauth2_token(

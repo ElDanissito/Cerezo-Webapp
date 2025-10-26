@@ -22,6 +22,7 @@ from app.users.views import (
     google_callback,
     verify_google_token,
     login_con_credenciales,
+    logout_view,
 )
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -40,4 +41,6 @@ urlpatterns = [
     # JWT tokens
     path('api/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # Logout endpoint (destroys server-side session and clears cookie)
+    path('api/logout', logout_view, name='logout'),
 ]
