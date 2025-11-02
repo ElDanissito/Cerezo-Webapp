@@ -1,80 +1,241 @@
+"use client";
+
 import Breadcrumb from "@/components/site/Common/Breadcrumb";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 
 const Signin = () => {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [touched, setTouched] = useState({
+    email: false,
+    password: false,
+  });
+  const [fieldErrors, setFieldErrors] = useState({
+    email: "",
+    password: "",
+  });
+
+  const validateField = (name: string, value: string) => {
+    let errorMsg = "";
+    
+    if (name === "email") {
+      if (!value.trim()) {
+        errorMsg = "El correo electrónico es requerido";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        errorMsg = "Ingresa un correo electrónico válido";
+      }
+    }
+    
+    if (name === "password") {
+      if (!value.trim()) {
+        errorMsg = "La contraseña es requerida";
+      } else if (value.length < 6) {
+        errorMsg = "La contraseña debe tener al menos 6 caracteres";
+      }
+    }
+    
+    return errorMsg;
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    // Validar en tiempo real si el campo ya fue tocado
+    if (touched[name as keyof typeof touched]) {
+      const error = validateField(name, value);
+      setFieldErrors((prev) => ({
+        ...prev,
+        [name]: error,
+      }));
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setTouched((prev) => ({
+      ...prev,
+      [name]: true,
+    }));
+
+    const error = validateField(name, value);
+    setFieldErrors((prev) => ({
+      ...prev,
+      [name]: error,
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+
+    // Validar todos los campos
+    const emailError = validateField("email", formData.email);
+    const passwordError = validateField("password", formData.password);
+
+    setFieldErrors({
+      email: emailError,
+      password: passwordError,
+    });
+
+    setTouched({
+      email: true,
+      password: true,
+    });
+
+    // Si hay errores, no enviar
+    if (emailError || passwordError) {
+      setError("Por favor corrige los errores antes de continuar");
+      return;
+    }
+
+    setIsLoading(true);
+
+    // TODO: Aquí iría la lógica para enviar el formulario al backend
+    console.log("Formulario de inicio de sesión:", formData);
+    setIsLoading(false);
+  };
+
+  const handleGoogleSignin = async () => {
+    setIsGoogleLoading(true);
+    setError("");
+    
+    try {
+      // TODO: Integrar con el backend Django para autenticación con Google
+      // Esta URL debería ser proporcionada por tu backend
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+      window.location.href = `${backendUrl}/api/auth/google/signin`;
+    } catch {
+      setError("Error al iniciar sesión con Google. Intenta nuevamente.");
+      setIsGoogleLoading(false);
+    }
+  };
+
   return (
     <>
-      <Breadcrumb title={"Signin"} pages={["Signin"]} />
+      <Breadcrumb title={"Iniciar Sesión"} pages={["Iniciar Sesión"]} />
       <section className="overflow-hidden py-20 bg-gray-2">
         <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
           <div className="max-w-[570px] w-full mx-auto rounded-xl bg-white shadow-1 p-4 sm:p-7.5 xl:p-11">
             <div className="text-center mb-11">
               <h2 className="font-semibold text-xl sm:text-2xl xl:text-heading-5 text-dark mb-1.5">
-                Sign In to Your Account
+                Inicia Sesión en tu Cuenta
               </h2>
-              <p>Enter your detail below</p>
+              <p>Ingresa tus datos a continuación</p>
             </div>
 
             <div>
-              <form>
+              <form onSubmit={handleSubmit}>
+                {error && (
+                  <div className="mb-5 p-3 rounded-lg bg-red/10 border border-red/20 text-red text-sm">
+                    {error}
+                  </div>
+                )}
+
                 <div className="mb-5">
                   <label htmlFor="email" className="block mb-2.5">
-                    Email
+                    Correo Electrónico
                   </label>
 
                   <input
                     type="email"
                     name="email"
                     id="email"
-                    placeholder="Enter your email"
-                    className="rounded-lg border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-3 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                    value={formData.email}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    placeholder="Ingresa tu correo electrónico"
+                    className={`rounded-lg border ${
+                      touched.email && fieldErrors.email
+                        ? "border-red focus:ring-red/20"
+                        : "border-gray-3 focus:ring-blue/20"
+                    } bg-gray-1 placeholder:text-dark-5 w-full py-3 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2`}
+                    required
                   />
+                  {touched.email && fieldErrors.email && (
+                    <p className="text-red text-sm mt-1.5">{fieldErrors.email}</p>
+                  )}
                 </div>
 
                 <div className="mb-5">
                   <label htmlFor="password" className="block mb-2.5">
-                    Password
+                    Contraseña
                   </label>
 
                   <input
                     type="password"
                     name="password"
                     id="password"
-                    placeholder="Enter your password"
-                    autoComplete="on"
-                    className="rounded-lg border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-3 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                    value={formData.password}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    placeholder="Ingresa tu contraseña"
+                    autoComplete="current-password"
+                    className={`rounded-lg border ${
+                      touched.password && fieldErrors.password
+                        ? "border-red focus:ring-red/20"
+                        : "border-gray-3 focus:ring-blue/20"
+                    } bg-gray-1 placeholder:text-dark-5 w-full py-3 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2`}
+                    required
                   />
+                  {touched.password && fieldErrors.password && (
+                    <p className="text-red text-sm mt-1.5">{fieldErrors.password}</p>
+                  )}
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full flex justify-center font-medium text-white bg-dark py-3 px-6 rounded-lg ease-out duration-200 hover:bg-blue mt-7.5"
+                  disabled={isLoading}
+                  className="w-full flex justify-center font-medium text-white bg-dark py-3 px-6 rounded-lg ease-out duration-200 hover:bg-blue mt-7.5 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Sign in to account
+                  {isLoading ? (
+                    <>
+                      <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+                      Iniciando...
+                    </>
+                  ) : (
+                    "Iniciar Sesión"
+                  )}
                 </button>
 
                 <a
                   href="#"
                   className="block text-center text-dark-4 mt-4.5 ease-out duration-200 hover:text-dark"
                 >
-                  Forget your password?
+                  ¿Olvidaste tu contraseña?
                 </a>
 
                 <span className="relative z-1 block font-medium text-center mt-4.5">
                   <span className="block absolute -z-1 left-0 top-1/2 h-px w-full bg-gray-3"></span>
-                  <span className="inline-block px-3 bg-white">Or</span>
+                  <span className="inline-block px-3 bg-white">O</span>
                 </span>
 
                 <div className="flex flex-col gap-4.5 mt-4.5">
-                  <button className="flex justify-center items-center gap-3.5 rounded-lg border border-gray-3 bg-gray-1 p-3 ease-out duration-200 hover:bg-gray-2">
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
+                  <button 
+                    type="button"
+                    onClick={handleGoogleSignin}
+                    disabled={isGoogleLoading}
+                    className="flex justify-center items-center gap-3.5 rounded-lg border border-gray-3 bg-gray-1 p-3 ease-out duration-200 hover:bg-gray-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isGoogleLoading ? (
+                      <span className="inline-block w-5 h-5 border-2 border-dark border-t-transparent rounded-full animate-spin"></span>
+                    ) : (
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
                       <g clipPath="url(#clip0_98_7461)">
                         <mask
                           id="mask0_98_7461"
@@ -111,33 +272,18 @@ const Signin = () => {
                         </clipPath>
                       </defs>
                     </svg>
-                    Sign In with Google
-                  </button>
-
-                  <button className="flex justify-center items-center gap-3.5 rounded-lg border border-gray-3 bg-gray-1 p-3 ease-out duration-200 hover:bg-gray-2">
-                    <svg
-                      width="22"
-                      height="22"
-                      viewBox="0 0 22 22"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M10.9997 1.83331C5.93773 1.83331 1.83301 6.04119 1.83301 11.232C1.83301 15.3847 4.45954 18.9077 8.10178 20.1505C8.55988 20.2375 8.72811 19.9466 8.72811 19.6983C8.72811 19.4743 8.71956 18.7338 8.71567 17.9485C6.16541 18.517 5.6273 16.8395 5.6273 16.8395C5.21032 15.7532 4.60951 15.4644 4.60951 15.4644C3.77785 14.8811 4.6722 14.893 4.6722 14.893C5.59272 14.9593 6.07742 15.8615 6.07742 15.8615C6.89499 17.2984 8.22184 16.883 8.74493 16.6429C8.82718 16.0353 9.06478 15.6208 9.32694 15.3861C7.2909 15.1484 5.15051 14.3425 5.15051 10.7412C5.15051 9.71509 5.5086 8.87661 6.09503 8.21844C5.99984 7.98167 5.68611 7.02577 6.18382 5.73115C6.18382 5.73115 6.95358 5.47855 8.70532 6.69458C9.43648 6.48627 10.2207 6.3819 10.9997 6.37836C11.7787 6.3819 12.5635 6.48627 13.2961 6.69458C15.0457 5.47855 15.8145 5.73115 15.8145 5.73115C16.3134 7.02577 15.9995 7.98167 15.9043 8.21844C16.4921 8.87661 16.8477 9.715 16.8477 10.7412C16.8477 14.351 14.7033 15.146 12.662 15.3786C12.9909 15.6702 13.2838 16.2423 13.2838 17.1191C13.2838 18.3766 13.2732 19.3888 13.2732 19.6983C13.2732 19.9485 13.4382 20.2415 13.9028 20.1492C17.5431 18.905 20.1663 15.3833 20.1663 11.232C20.1663 6.04119 16.0621 1.83331 10.9997 1.83331Z"
-                        fill="#15171A"
-                      />
-                    </svg>
-                    Sign Up with Github
+                    )}
+                    {isGoogleLoading ? "Conectando..." : "Iniciar Sesión con Google"}
                   </button>
                 </div>
 
                 <p className="text-center mt-6">
-                  Don&apos;t have an account?
+                  ¿No tienes una cuenta?
                   <Link
                     href="/signup"
                     className="text-dark ease-out duration-200 hover:text-blue pl-2"
                   >
-                    Sign Up Now!
+                    Regístrate Ahora
                   </Link>
                 </p>
               </form>
