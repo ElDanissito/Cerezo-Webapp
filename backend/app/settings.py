@@ -151,8 +151,9 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
+        'app.common.permissions.AdminOnly',
     ),
+    'EXCEPTION_HANDLER': 'app.common.exceptions.custom_exception_handler',
 }
 
 # JWT settings

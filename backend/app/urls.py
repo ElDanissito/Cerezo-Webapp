@@ -37,4 +37,6 @@ urlpatterns = [
     # JWT tokens
     path('api/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # Formularios API
+    path('api/formularios/', include('app.formularios.urls')),
 ]
