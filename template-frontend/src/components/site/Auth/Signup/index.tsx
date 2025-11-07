@@ -1,30 +1,197 @@
-import Breadcrumb from "@/components/Common/Breadcrumb";
+"use client";
+
+import Breadcrumb from "@/components/site/Common/Breadcrumb";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 
 const Signup = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [error, setError] = useState("");
+  const [passwordMatch, setPasswordMatch] = useState(true);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [touched, setTouched] = useState({
+    name: false,
+    email: false,
+    password: false,
+    confirmPassword: false,
+  });
+  const [fieldErrors, setFieldErrors] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const validateField = (name: string, value: string) => {
+    let errorMsg = "";
+    
+    if (name === "name") {
+      if (!value.trim()) {
+        errorMsg = "El nombre completo es requerido";
+      } else if (value.trim().length < 3) {
+        errorMsg = "El nombre debe tener al menos 3 caracteres";
+      }
+    }
+    
+    if (name === "email") {
+      if (!value.trim()) {
+        errorMsg = "El correo electrónico es requerido";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        errorMsg = "Ingresa un correo electrónico válido";
+      }
+    }
+    
+    if (name === "password") {
+      if (!value.trim()) {
+        errorMsg = "La contraseña es requerida";
+      } else if (value.length < 6) {
+        errorMsg = "La contraseña debe tener al menos 6 caracteres";
+      }
+    }
+    
+    if (name === "confirmPassword") {
+      if (!value.trim()) {
+        errorMsg = "Debes confirmar tu contraseña";
+      } else if (value !== formData.password) {
+        errorMsg = "Las contraseñas no coinciden";
+      }
+    }
+    
+    return errorMsg;
+  };
+
+  const handleGoogleSignup = async () => {
+    setIsGoogleLoading(true);
+    setError("");
+    
+    try {
+      // TODO: Integrar con el backend Django para autenticación con Google
+      // Por ahora, redirigir a la URL de OAuth de Google
+      // Esta URL debería ser proporcionada por tu backend
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+      window.location.href = `${backendUrl}/api/auth/google/signup`;
+    } catch (err) {
+      setError("Error al iniciar sesión con Google. Intenta nuevamente.");
+      setIsGoogleLoading(false);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    // Validar en tiempo real si las contraseñas coinciden
+    if (name === "password" || name === "confirmPassword") {
+      const password = name === "password" ? value : formData.password;
+      const confirmPassword = name === "confirmPassword" ? value : formData.confirmPassword;
+      
+      if (confirmPassword.length > 0) {
+        setPasswordMatch(password === confirmPassword);
+      } else {
+        setPasswordMatch(true);
+      }
+    }
+
+    // Validar en tiempo real si el campo ya fue tocado
+    if (touched[name as keyof typeof touched]) {
+      const error = validateField(name, value);
+      setFieldErrors((prev) => ({
+        ...prev,
+        [name]: error,
+      }));
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setTouched((prev) => ({
+      ...prev,
+      [name]: true,
+    }));
+
+    const error = validateField(name, value);
+    setFieldErrors((prev) => ({
+      ...prev,
+      [name]: error,
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+
+    // Validar todos los campos
+    const nameError = validateField("name", formData.name);
+    const emailError = validateField("email", formData.email);
+    const passwordError = validateField("password", formData.password);
+    const confirmPasswordError = validateField("confirmPassword", formData.confirmPassword);
+
+    setFieldErrors({
+      name: nameError,
+      email: emailError,
+      password: passwordError,
+      confirmPassword: confirmPasswordError,
+    });
+
+    setTouched({
+      name: true,
+      email: true,
+      password: true,
+      confirmPassword: true,
+    });
+
+    // Si hay errores, no enviar
+    if (nameError || emailError || passwordError || confirmPasswordError) {
+      setError("Por favor corrige los errores antes de continuar");
+      return;
+    }
+
+    setIsLoading(true);
+
+    // Aquí iría la lógica para enviar el formulario al backend
+    console.log("Formulario válido:", formData);
+    setIsLoading(false);
+  };
+
   return (
     <>
-      <Breadcrumb title={"Signup"} pages={["Signup"]} />
+      <Breadcrumb title={"Registro"} pages={["Registro"]} />
       <section className="overflow-hidden py-20 bg-gray-2">
         <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
           <div className="max-w-[570px] w-full mx-auto rounded-xl bg-white shadow-1 p-4 sm:p-7.5 xl:p-11">
             <div className="text-center mb-11">
               <h2 className="font-semibold text-xl sm:text-2xl xl:text-heading-5 text-dark mb-1.5">
-                Create an Account
+                Crear una Cuenta
               </h2>
-              <p>Enter your detail below</p>
+              <p>Ingresa tus datos a continuación</p>
             </div>
 
             <div className="flex flex-col gap-4.5">
-              <button className="flex justify-center items-center gap-3.5 rounded-lg border border-gray-3 bg-gray-1 p-3 ease-out duration-200 hover:bg-gray-2">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
+              <button 
+                type="button"
+                onClick={handleGoogleSignup}
+                disabled={isGoogleLoading}
+                className="flex justify-center items-center gap-3.5 rounded-lg border border-gray-3 bg-gray-1 p-3 ease-out duration-200 hover:bg-gray-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isGoogleLoading ? (
+                  <span className="inline-block w-5 h-5 border-2 border-dark border-t-transparent rounded-full animate-spin"></span>
+                ) : (
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
                   <g clipPath="url(#clip0_98_7461)">
                     <mask
                       id="mask0_98_7461"
@@ -61,105 +228,148 @@ const Signup = () => {
                     </clipPath>
                   </defs>
                 </svg>
-                Sign Up with Google
-              </button>
-
-              <button className="flex justify-center items-center gap-3.5 rounded-lg border border-gray-3 bg-gray-1 p-3 ease-out duration-200 hover:bg-gray-2">
-                <svg
-                  width="22"
-                  height="22"
-                  viewBox="0 0 22 22"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M10.9997 1.83331C5.93773 1.83331 1.83301 6.04119 1.83301 11.232C1.83301 15.3847 4.45954 18.9077 8.10178 20.1505C8.55988 20.2375 8.72811 19.9466 8.72811 19.6983C8.72811 19.4743 8.71956 18.7338 8.71567 17.9485C6.16541 18.517 5.6273 16.8395 5.6273 16.8395C5.21032 15.7532 4.60951 15.4644 4.60951 15.4644C3.77785 14.8811 4.6722 14.893 4.6722 14.893C5.59272 14.9593 6.07742 15.8615 6.07742 15.8615C6.89499 17.2984 8.22184 16.883 8.74493 16.6429C8.82718 16.0353 9.06478 15.6208 9.32694 15.3861C7.2909 15.1484 5.15051 14.3425 5.15051 10.7412C5.15051 9.71509 5.5086 8.87661 6.09503 8.21844C5.99984 7.98167 5.68611 7.02577 6.18382 5.73115C6.18382 5.73115 6.95358 5.47855 8.70532 6.69458C9.43648 6.48627 10.2207 6.3819 10.9997 6.37836C11.7787 6.3819 12.5635 6.48627 13.2961 6.69458C15.0457 5.47855 15.8145 5.73115 15.8145 5.73115C16.3134 7.02577 15.9995 7.98167 15.9043 8.21844C16.4921 8.87661 16.8477 9.715 16.8477 10.7412C16.8477 14.351 14.7033 15.146 12.662 15.3786C12.9909 15.6702 13.2838 16.2423 13.2838 17.1191C13.2838 18.3766 13.2732 19.3888 13.2732 19.6983C13.2732 19.9485 13.4382 20.2415 13.9028 20.1492C17.5431 18.905 20.1663 15.3833 20.1663 11.232C20.1663 6.04119 16.0621 1.83331 10.9997 1.83331Z"
-                    fill="#15171A"
-                  />
-                </svg>
-                Sign Up with Github
+                )}
+                {isGoogleLoading ? "Conectando..." : "Registrarse con Google"}
               </button>
             </div>
 
             <span className="relative z-1 block font-medium text-center mt-4.5">
               <span className="block absolute -z-1 left-0 top-1/2 h-px w-full bg-gray-3"></span>
-              <span className="inline-block px-3 bg-white">Or</span>
+              <span className="inline-block px-3 bg-white">O</span>
             </span>
 
             <div className="mt-5.5">
-              <form>
+              <form onSubmit={handleSubmit}>
+                {error && (
+                  <div className="mb-5 p-3 rounded-lg bg-red/10 border border-red/20 text-red text-sm">
+                    {error}
+                  </div>
+                )}
+
                 <div className="mb-5">
                   <label htmlFor="name" className="block mb-2.5">
-                    Full Name <span className="text-red">*</span>
+                    Nombre Completo <span className="text-red">*</span>
                   </label>
 
                   <input
                     type="text"
                     name="name"
                     id="name"
-                    placeholder="Enter your full name"
-                    className="rounded-lg border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-3 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                    value={formData.name}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    placeholder="Ingresa tu nombre completo"
+                    className={`rounded-lg border ${
+                      touched.name && fieldErrors.name
+                        ? "border-red focus:ring-red/20"
+                        : "border-gray-3 focus:ring-blue/20"
+                    } bg-gray-1 placeholder:text-dark-5 w-full py-3 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2`}
+                    required
                   />
+                  {touched.name && fieldErrors.name && (
+                    <p className="text-red text-sm mt-1.5">{fieldErrors.name}</p>
+                  )}
                 </div>
 
                 <div className="mb-5">
                   <label htmlFor="email" className="block mb-2.5">
-                    Email Address <span className="text-red">*</span>
+                    Correo Electrónico <span className="text-red">*</span>
                   </label>
 
                   <input
                     type="email"
                     name="email"
                     id="email"
-                    placeholder="Enter your email address"
-                    className="rounded-lg border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-3 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                    value={formData.email}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    placeholder="Ingresa tu correo electrónico"
+                    className={`rounded-lg border ${
+                      touched.email && fieldErrors.email
+                        ? "border-red focus:ring-red/20"
+                        : "border-gray-3 focus:ring-blue/20"
+                    } bg-gray-1 placeholder:text-dark-5 w-full py-3 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2`}
+                    required
                   />
+                  {touched.email && fieldErrors.email && (
+                    <p className="text-red text-sm mt-1.5">{fieldErrors.email}</p>
+                  )}
                 </div>
 
                 <div className="mb-5">
                   <label htmlFor="password" className="block mb-2.5">
-                    Password <span className="text-red">*</span>
+                    Contraseña <span className="text-red">*</span>
                   </label>
 
                   <input
                     type="password"
                     name="password"
                     id="password"
-                    placeholder="Enter your password"
-                    autoComplete="on"
-                    className="rounded-lg border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-3 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                    value={formData.password}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    placeholder="Ingresa tu contraseña"
+                    autoComplete="new-password"
+                    className={`rounded-lg border ${
+                      touched.password && fieldErrors.password
+                        ? "border-red focus:ring-red/20"
+                        : "border-gray-3 focus:ring-blue/20"
+                    } bg-gray-1 placeholder:text-dark-5 w-full py-3 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2`}
+                    required
                   />
+                  {touched.password && fieldErrors.password && (
+                    <p className="text-red text-sm mt-1.5">{fieldErrors.password}</p>
+                  )}
                 </div>
 
                 <div className="mb-5.5">
-                  <label htmlFor="re-type-password" className="block mb-2.5">
-                    Re-type Password <span className="text-red">*</span>
+                  <label htmlFor="confirmPassword" className="block mb-2.5">
+                    Confirmar Contraseña <span className="text-red">*</span>
                   </label>
 
                   <input
                     type="password"
-                    name="re-type-password"
-                    id="re-type-password"
-                    placeholder="Re-type your password"
-                    autoComplete="on"
-                    className="rounded-lg border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-3 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                    name="confirmPassword"
+                    id="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    placeholder="Confirma tu contraseña"
+                    autoComplete="new-password"
+                    className={`rounded-lg border ${
+                      (touched.confirmPassword && fieldErrors.confirmPassword) || (!passwordMatch && formData.confirmPassword.length > 0)
+                        ? "border-red focus:ring-red/20"
+                        : "border-gray-3 focus:ring-blue/20"
+                    } bg-gray-1 placeholder:text-dark-5 w-full py-3 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2`}
+                    required
                   />
+                  {touched.confirmPassword && fieldErrors.confirmPassword && (
+                    <p className="text-red text-sm mt-1.5">{fieldErrors.confirmPassword}</p>
+                  )}
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full flex justify-center font-medium text-white bg-dark py-3 px-6 rounded-lg ease-out duration-200 hover:bg-blue mt-7.5"
+                  disabled={isLoading}
+                  className="w-full flex justify-center font-medium text-white bg-dark py-3 px-6 rounded-lg ease-out duration-200 hover:bg-blue mt-7.5 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Create Account
+                  {isLoading ? (
+                    <>
+                      <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+                      Creando cuenta...
+                    </>
+                  ) : (
+                    "Crear Cuenta"
+                  )}
                 </button>
 
                 <p className="text-center mt-6">
-                  Already have an account?
+                  ¿Ya tienes una cuenta?
                   <Link
                     href="/signin"
                     className="text-dark ease-out duration-200 hover:text-blue pl-2"
                   >
-                    Sign in Now
+                    Inicia Sesión
                   </Link>
                 </p>
               </form>
