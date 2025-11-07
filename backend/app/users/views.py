@@ -2,6 +2,7 @@ from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.utils.html import strip_tags
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -106,6 +107,10 @@ def google_callback(request):
 		email = id_info.get('email')
 		first_name = id_info.get('given_name', '')
 		last_name = id_info.get('family_name', '')
+
+		# Sanitizar valores simples para evitar inyección de HTML
+		first_name = strip_tags(first_name) if first_name else ''
+		last_name = strip_tags(last_name) if last_name else ''
 		google_id = id_info.get('sub')
         
 		if not email:
@@ -175,6 +180,10 @@ def verify_google_token(request):
 		email = id_info.get('email')
 		first_name = id_info.get('given_name', '')
 		last_name = id_info.get('family_name', '')
+
+		# Sanitizar valores simples para evitar inyección de HTML
+		first_name = strip_tags(first_name) if first_name else ''
+		last_name = strip_tags(last_name) if last_name else ''
         
 		if not email:
 			return Response(

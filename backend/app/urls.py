@@ -22,6 +22,7 @@ from app.users.views import (
     google_callback,
     verify_google_token
 )
+from app.core.views import test_sanitize
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -37,4 +38,6 @@ urlpatterns = [
     # JWT tokens
     path('api/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # Endpoint de prueba para sanitización
+    path('api/test-sanitize/', test_sanitize, name='test_sanitize'),
 ]
