@@ -11,6 +11,48 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import redirect
 from urllib.parse import urlencode
 import requests
+import bcrypt
+import jwt
+from datetime import datetime, timedelta, timezone
+from .json_store import find_user
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def logout_view(request):
+	"""Invalidate server-side session and remove session cookie.
+
+	Route: POST /api/logout
+	"""
+	# If we stored a Google refresh token in the server-side session during OAuth,
+	# revoke it at Google before flushing the session so the token becomes invalid.
+	google_refresh = request.session.get('google_refresh_token')
+	if google_refresh:
+		try:
+			# Google revocation endpoint expects token in form-encoded body
+			rev = requests.post(
+				'https://oauth2.googleapis.com/revoke',
+				data={'token': google_refresh},
+				headers={'content-type': 'application/x-www-form-urlencoded'},
+				timeout=5,
+			)
+			# best-effort: ignore non-200 responses, but log if needed
+			if rev.status_code != 200:
+				print(f"Google token revocation returned {rev.status_code}: {rev.text}")
+		except Exception as e:
+			print(f"Failed to revoke Google refresh token: {e}")
+
+	# Flush any server-side session data (if used)
+	try:
+		request.session.flush()
+	except Exception:
+		# ignore if sessions not configured for this request
+		pass
+
+	resp = Response({'detail': 'logged_out'}, status=status.HTTP_200_OK)
+	# Remove the session cookie from client
+	resp.delete_cookie('session', path='/')
+	return resp
 
 
 def get_tokens_for_user(user):
@@ -95,6 +137,11 @@ def google_callback(request):
 		token_response = requests.post(token_url, data=token_data)
 		token_response.raise_for_status()
 		tokens = token_response.json()
+
+			# Store the refresh token in the server-side session so we can revoke it on logout
+		refresh_token = tokens.get('refresh_token')
+		if refresh_token:
+			request.session['google_refresh_token'] = refresh_token
         
 		# Verificar el ID token
 		id_info = id_token.verify_oauth2_token(
@@ -221,3 +268,131 @@ def verify_google_token(request):
 			{'error': f'Error al verificar el token: {str(e)}'},
 			status=status.HTTP_400_BAD_REQUEST
 		)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login_con_credenciales(request):
+	"""
+	Endpoint de login clásico.
+	Ruta: POST /api/login
+	Cuerpo JSON: { "usuario": str, "contraseña": str }
+
+	Respuesta: 200 OK con token JWT y set-cookie HttpOnly; 401 si credenciales inválidas.
+	"""
+	data = request.data or {}
+	username = data.get('usuario')
+	password = data.get('contraseña')
+
+	if not username or not password:
+		return Response(
+			{'error': 'usuario y contraseña son requeridos'},
+			status=status.HTTP_400_BAD_REQUEST
+		)
+
+	# Buscar usuario en el almacén JSON
+	u = find_user(username)
+	if not u:
+		return Response({'error': 'Credenciales inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
+
+	stored_hash = u.get('password_hash')
+	if not stored_hash:
+		return Response({'error': 'Credenciales inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
+
+	try:
+		ok = bcrypt.checkpw(password.encode('utf-8'), stored_hash.encode('utf-8'))
+	except Exception:
+		ok = False
+
+	if not ok:
+		return Response({'error': 'Credenciales inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
+
+	# Generar JWT manualmente (no depende del modelo User)
+	now = datetime.now(timezone.utc)
+	exp = now + timedelta(minutes=60)
+	payload = {
+		'sub': u.get('usuario'),
+		'iat': int(now.timestamp()),
+		'exp': int(exp.timestamp()),
+		'scope': 'user',
+	}
+	token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+
+	resp = Response({'token': token, 'usuario': u.get('usuario')}, status=status.HTTP_200_OK)
+
+	# Cookie segura. En desarrollo, Secure=False para permitir HTTP; en prod, True.
+	cookie_secure = not settings.DEBUG
+	resp.set_cookie(
+		key='session',
+		value=token,
+		httponly=True,
+		secure=cookie_secure,
+		samesite='Strict',
+		max_age=60 * 60,  # 1 hora
+		path='/'
+	)
+
+	return resp
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login_con_credenciales(request):
+	"""
+	Endpoint de login clásico.
+	Ruta: POST /api/login
+	Cuerpo JSON: { "usuario": str, "contraseña": str }
+
+	Respuesta: 200 OK con token JWT y set-cookie HttpOnly; 401 si credenciales inválidas.
+	"""
+	data = request.data or {}
+	username = data.get('usuario')
+	password = data.get('contraseña')
+
+	if not username or not password:
+		return Response(
+			{'error': 'usuario y contraseña son requeridos'},
+			status=status.HTTP_400_BAD_REQUEST
+		)
+
+	# Buscar usuario en el almacén JSON
+	u = find_user(username)
+	if not u:
+		return Response({'error': 'Credenciales inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
+
+	stored_hash = u.get('password_hash')
+	if not stored_hash:
+		return Response({'error': 'Credenciales inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
+
+	try:
+		ok = bcrypt.checkpw(password.encode('utf-8'), stored_hash.encode('utf-8'))
+	except Exception:
+		ok = False
+
+	if not ok:
+		return Response({'error': 'Credenciales inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
+
+	# Generar JWT manualmente (no depende del modelo User)
+	now = datetime.now(timezone.utc)
+	exp = now + timedelta(minutes=60)
+	payload = {
+		'sub': u.get('usuario'),
+		'iat': int(now.timestamp()),
+		'exp': int(exp.timestamp()),
+		'scope': 'user',
+	}
+	token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+
+	resp = Response({'token': token, 'usuario': u.get('usuario')}, status=status.HTTP_200_OK)
+
+	# Cookie segura. En desarrollo, Secure=False para permitir HTTP; en prod, True.
+	cookie_secure = not settings.DEBUG
+	resp.set_cookie(
+		key='session',
+		value=token,
+		httponly=True,
+		secure=cookie_secure,
+		samesite='Strict',
+		max_age=60 * 60,  # 1 hora
+		path='/'
+	)
+
+	return resp

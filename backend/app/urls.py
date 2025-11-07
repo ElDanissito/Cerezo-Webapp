@@ -20,7 +20,9 @@ from app.users.views import (
     google_signin,
     google_signup,
     google_callback,
-    verify_google_token
+    verify_google_token,
+    login_con_credenciales,
+    logout_view,
 )
 from app.core.views import test_sanitize
 from rest_framework_simplejwt.views import (
@@ -30,6 +32,8 @@ from rest_framework_simplejwt.views import (
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # Login con credenciales (JSON store + bcrypt)
+    path('api/login', login_con_credenciales, name='login_credenciales'),
     # Autenticación con Google OAuth
     path('api/auth/google/signin/', google_signin, name='google_signin'),
     path('api/auth/google/signup/', google_signup, name='google_signup'),
@@ -38,6 +42,8 @@ urlpatterns = [
     # JWT tokens
     path('api/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # Logout endpoint (destroys server-side session and clears cookie)
+    path('api/logout', logout_view, name='logout'),
     # Endpoint de prueba para sanitización
     path('api/test-sanitize/', test_sanitize, name='test_sanitize'),
 ]

@@ -26,9 +26,9 @@ const Signin = () => {
     
     if (name === "email") {
       if (!value.trim()) {
-        errorMsg = "El correo electrónico es requerido";
+        errorMsg = "El correo electronico es requerido";
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-        errorMsg = "Ingresa un correo electrónico válido";
+        errorMsg = "Ingresa un correo electronico valido";
       }
     }
     
@@ -74,10 +74,10 @@ const Signin = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
-
+      
     // Validar todos los campos
     const emailError = validateField("email", formData.email);
     const passwordError = validateField("password", formData.password);
@@ -100,9 +100,30 @@ const Signin = () => {
 
     setIsLoading(true);
 
-    // TODO: Aquí iría la lógica para enviar el formulario al backend
-    console.log("Formulario de inicio de sesión:", formData);
-    setIsLoading(false);
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+      const resp = await fetch(`${backendUrl}/api/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          usuario: formData.email,
+          contraseña: formData.password,
+        }),
+      });
+
+      if (!resp.ok) {
+        const data = await resp.json().catch(() => ({}));
+        const msg = (data as any)?.error || "Credenciales invalidas";
+        throw new Error(msg);
+      }
+
+      window.location.href = "/dashboard";
+    } catch (err: any) {
+      setError(err.message || "Error al iniciar sesion. Intenta nuevamente.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleGoogleSignin = async () => {
@@ -110,16 +131,13 @@ const Signin = () => {
     setError("");
     
     try {
-      // TODO: Integrar con el backend Django para autenticación con Google
-      // Esta URL debería ser proporcionada por tu backend
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
       window.location.href = `${backendUrl}/api/auth/google/signin`;
     } catch {
-      setError("Error al iniciar sesión con Google. Intenta nuevamente.");
+      setError("Error al iniciar sesion con Google. Intenta nuevamente.");
       setIsGoogleLoading(false);
     }
   };
-
   return (
     <>
       <Breadcrumb title={"Iniciar Sesión"} pages={["Iniciar Sesión"]} />

@@ -51,6 +51,39 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, []);
 
+  // Global fetch wrapper to detect 401 (session expired) and redirect to signin
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const originalFetch = window.fetch.bind(window);
+
+    // Replace window.fetch with a wrapper that checks for 401
+    // Provide concrete parameters to avoid spread/tuple typing errors
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    window.fetch = async (input: RequestInfo, init?: RequestInit) => {
+      try {
+        const resp = await originalFetch(input, init as any);
+        if (resp && resp.status === 401) {
+          // Optionally clear client-side session state here
+          // Redirect to signin page so user can re-authenticate
+          window.location.href = "/signin";
+        }
+        return resp;
+      } catch (err) {
+        // In case of network errors, rethrow so callers can handle it
+        throw err;
+      }
+    };
+
+    return () => {
+      // restore original fetch
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      window.fetch = originalFetch;
+    };
+  }, []);
+
   const toggleSidebar = () => {
     setIsExpanded((prev) => !prev);
   };
