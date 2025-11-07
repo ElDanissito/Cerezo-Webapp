@@ -24,6 +24,7 @@ from app.users.views import (
     login_con_credenciales,
     logout_view,
 )
+from app.core.views import test_sanitize
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -43,4 +44,6 @@ urlpatterns = [
     path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     # Logout endpoint (destroys server-side session and clears cookie)
     path('api/logout', logout_view, name='logout'),
+    # Endpoint de prueba para sanitización
+    path('api/test-sanitize/', test_sanitize, name='test_sanitize'),
 ]

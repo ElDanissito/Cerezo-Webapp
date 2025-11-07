@@ -34,9 +34,9 @@ const Signin = () => {
     
     if (name === "password") {
       if (!value.trim()) {
-        errorMsg = "La contrasena es requerida";
+        errorMsg = "La contraseña es requerida";
       } else if (value.length < 6) {
-        errorMsg = "La contrasena debe tener al menos 6 caracteres";
+        errorMsg = "La contraseña debe tener al menos 6 caracteres";
       }
     }
     
@@ -50,6 +50,7 @@ const Signin = () => {
       [name]: value,
     }));
 
+    // Validar en tiempo real si el campo ya fue tocado
     if (touched[name as keyof typeof touched]) {
       const error = validateField(name, value);
       setFieldErrors((prev) => ({
@@ -76,7 +77,8 @@ const Signin = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
-
+      
+    // Validar todos los campos
     const emailError = validateField("email", formData.email);
     const passwordError = validateField("password", formData.password);
 
@@ -90,6 +92,7 @@ const Signin = () => {
       password: true,
     });
 
+    // Si hay errores, no enviar
     if (emailError || passwordError) {
       setError("Por favor corrige los errores antes de continuar");
       return;
@@ -137,87 +140,120 @@ const Signin = () => {
   };
   return (
     <>
-      <Breadcrumb title={"Signin"} pages={["Signin"]} />
+      <Breadcrumb title={"Iniciar Sesión"} pages={["Iniciar Sesión"]} />
       <section className="overflow-hidden py-20 bg-gray-2">
         <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
           <div className="max-w-[570px] w-full mx-auto rounded-xl bg-white shadow-1 p-4 sm:p-7.5 xl:p-11">
             <div className="text-center mb-11">
               <h2 className="font-semibold text-xl sm:text-2xl xl:text-heading-5 text-dark mb-1.5">
-                Sign In to Your Account
+                Inicia Sesión en tu Cuenta
               </h2>
-              <p>Enter your detail below</p>
+              <p>Ingresa tus datos a continuación</p>
             </div>
 
             <div>
               <form onSubmit={handleSubmit}>
+                {error && (
+                  <div className="mb-5 p-3 rounded-lg bg-red/10 border border-red/20 text-red text-sm">
+                    {error}
+                  </div>
+                )}
+
                 <div className="mb-5">
                   <label htmlFor="email" className="block mb-2.5">
-                    Email
+                    Correo Electrónico
                   </label>
 
                   <input
                     type="email"
                     name="email"
                     id="email"
-                    placeholder="Enter your email"
                     value={formData.email}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    className="rounded-lg border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-3 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                    placeholder="Ingresa tu correo electrónico"
+                    className={`rounded-lg border ${
+                      touched.email && fieldErrors.email
+                        ? "border-red focus:ring-red/20"
+                        : "border-gray-3 focus:ring-blue/20"
+                    } bg-gray-1 placeholder:text-dark-5 w-full py-3 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2`}
+                    required
                   />
+                  {touched.email && fieldErrors.email && (
+                    <p className="text-red text-sm mt-1.5">{fieldErrors.email}</p>
+                  )}
                 </div>
 
                 <div className="mb-5">
                   <label htmlFor="password" className="block mb-2.5">
-                    Password
+                    Contraseña
                   </label>
 
                   <input
                     type="password"
                     name="password"
                     id="password"
-                    placeholder="Enter your password"
-                    autoComplete="on"
                     value={formData.password}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    className="rounded-lg border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-3 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                    placeholder="Ingresa tu contraseña"
+                    autoComplete="current-password"
+                    className={`rounded-lg border ${
+                      touched.password && fieldErrors.password
+                        ? "border-red focus:ring-red/20"
+                        : "border-gray-3 focus:ring-blue/20"
+                    } bg-gray-1 placeholder:text-dark-5 w-full py-3 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2`}
+                    required
                   />
+                  {touched.password && fieldErrors.password && (
+                    <p className="text-red text-sm mt-1.5">{fieldErrors.password}</p>
+                  )}
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full flex justify-center font-medium text-white bg-dark py-3 px-6 rounded-lg ease-out duration-200 hover:bg-blue mt-7.5"
+                  disabled={isLoading}
+                  className="w-full flex justify-center font-medium text-white bg-dark py-3 px-6 rounded-lg ease-out duration-200 hover:bg-blue mt-7.5 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Sign in to account
+                  {isLoading ? (
+                    <>
+                      <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+                      Iniciando...
+                    </>
+                  ) : (
+                    "Iniciar Sesión"
+                  )}
                 </button>
 
                 <a
                   href="#"
                   className="block text-center text-dark-4 mt-4.5 ease-out duration-200 hover:text-dark"
                 >
-                  Forget your password?
+                  ¿Olvidaste tu contraseña?
                 </a>
 
                 <span className="relative z-1 block font-medium text-center mt-4.5">
                   <span className="block absolute -z-1 left-0 top-1/2 h-px w-full bg-gray-3"></span>
-                  <span className="inline-block px-3 bg-white">Or</span>
+                  <span className="inline-block px-3 bg-white">O</span>
                 </span>
 
                 <div className="flex flex-col gap-4.5 mt-4.5">
-                  <button
+                  <button 
                     type="button"
                     onClick={handleGoogleSignin}
                     disabled={isGoogleLoading}
-                    className="flex justify-center items-center gap-3.5 rounded-lg border border-gray-3 bg-gray-1 p-3 ease-out duration-200 hover:bg-gray-2"
+                    className="flex justify-center items-center gap-3.5 rounded-lg border border-gray-3 bg-gray-1 p-3 ease-out duration-200 hover:bg-gray-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
+                    {isGoogleLoading ? (
+                      <span className="inline-block w-5 h-5 border-2 border-dark border-t-transparent rounded-full animate-spin"></span>
+                    ) : (
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
                       <g clipPath="url(#clip0_98_7461)">
                         <mask
                           id="mask0_98_7461"
@@ -254,19 +290,18 @@ const Signin = () => {
                         </clipPath>
                       </defs>
                     </svg>
-                    {isGoogleLoading ? "Signing in..." : "Sign In with Google"}
+                    )}
+                    {isGoogleLoading ? "Conectando..." : "Iniciar Sesión con Google"}
                   </button>
-
-                  {/* GitHub signin/signup removed per request */}
                 </div>
 
                 <p className="text-center mt-6">
-                  Don&apos;t have an account?
+                  ¿No tienes una cuenta?
                   <Link
                     href="/signup"
                     className="text-dark ease-out duration-200 hover:text-blue pl-2"
                   >
-                    Sign Up Now!
+                    Regístrate Ahora
                   </Link>
                 </p>
               </form>
