@@ -31,7 +31,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # === API Dashboard Summary ===
-    path('api/', include('app.tramites.urls')),
+    path('api/', include('app.dashboard.urls')),
     # Autenticación con Google OAuth
     path('api/auth/google/signin/', google_signin, name='google_signin'),
     path('api/auth/google/signup/', google_signup, name='google_signup'),
